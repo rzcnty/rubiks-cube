@@ -6,32 +6,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-
+#include <string.h>
 
 
 // =========  YOUR COMPULSORY (BUT SPECIFIC TO THE PROBLEM) FUNCTIONS =======
 
 //___________________ Create unique char key for each state______________________
-void Generate_HashTable_Key(const State *const state, unsigned char* key) 
+void Generate_HashTable_Key(const State *const state, unsigned char* key)
 {
-	int temp_city = state->city, i=0;
-	
-	if(temp_city == 0){
-		key[0] = '0';
-		key[1] = '\0';
-	}
-	else{
-		for(i=0; temp_city>0; i++){
-			key[i] = temp_city%10 + '0';
-			temp_city /= 10;
-		}
-		key[i] = '\0';
-	}
-		
-	if(i>MAX_KEY_SIZE){
-		printf("ERROR: MAX_KEY_SIZE is exceeded in Generate_HashTable_Key. \n");
+    memcpy(key, state->stickers, 54);
+    key[54] = '\0';
+	if(55 > MAX_KEY_SIZE){
+		printf("ERROR: MAX_KEY_SIZE must be at least 55 for Rubik's Cube state.\n");
 		exit(-1);
-	}   
+	}
 }
 
 
