@@ -10,6 +10,7 @@
 #include "data_types.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 //______________________________________________________________________________
 State* Create_State()
@@ -18,71 +19,86 @@ State* Create_State()
     if(state==NULL)
     	Warning_Memory_Allocation(); 
    
-   	for(state->city=Arad; state->city<=Zerind; state->city++){        
-    	printf("%d --> ", state->city);
-        Print_State(state);
-        printf("\n");
-   	}        
-   
-   	do{ 
-    	printf("Enter the code of the state: ");
-        scanf("%d", &state->city);
-   	}while(state->city<0 && state->city>=CITY_NUMBER);
-	       
+   	 printf("========================================================================\n");
+    printf("Rubik's cube solver\n");
+    printf("========================================================================\n");
+    printf("Enter the cube's state as a 54-character string.\n\n");
+    printf("Color codes:\n");
+    printf("  0: White   1: Orange   2: Green\n");
+    printf("  3: Red    4: Blue        5: Yellow\n\n");
+    printf("Input Order:\n");
+    printf("1. FIRST UPPER FACE (UP), then LEFT (LEFT), then FRONT (FRONT), then RIGHT (RIGHT),\n");
+    printf("   then BACK (BACK) and finally LOWER (DOWN) face colors.\n\n");
+    printf("2. For each face, enter 9 colors, ROW BY ROW and from left to right:\n");
+    printf("   Example input order for the UPPER face:\n");
+    printf("      +---+---+---+\n");
+    printf("      | 1 | 2 | 3 |  <-- First this row (left, middle, right)\n");
+    printf("      +---+---+---+\n");
+    printf("      | 4 | 5 | 6 |  <-- Then this row (left, middle, right)\n");
+    printf("      +---+---+---+\n");
+    printf("      | 7 | 8 | 9 |  <-- Finally this row (left, middle, right)\n");
+    printf("      +---+---+---+\n\n");
+    printf("Example (for a completely solved cube):\n");
+    printf("000000000111111111222222222333333333444444444555555555\n\n");
+    printf("Enter your cube's state: ");
+
+	       char input_string[100];
+    scanf("%99s", input_string);
+
+    if (strlen(input_string) != 54) {
+        printf("ERROR: The entered string must be exactly 54 characters long!\n");
+        printf("Terminating the program.\n");
+        free(state);
+        exit(1);
+    }
+
+    int i;
+    for (i = 0; i < 54; i++) {
+        char c = input_string[i];
+        if (c >= '0' && c <= '5') {
+            state->stickers[i] = c - '0';
+        } else {
+            printf("ERROR: Invalid character '%c' found. Only digits 0-5 are allowed.\n", c);
+            printf("Terminating the program.\n");
+            free(state);
+            exit(1);
+        }
+    }
+
+    printf("\nInitial state created successfully.\n");
+    Print_State(state);
+    printf("\n");
     return state;    
 }
 
 //______________________________________________________________________________
 void Print_State(const State *const state)
 {
-    switch(state->city){
-         case  Arad:      printf("Arad"); break;
-         case  Bucharest: printf("Bucharest"); break;
-         case  Craiova:   printf("Craiova"); break;
-         case  Drobeta:   printf("Drobeta"); break;
-         case  Eforie:    printf("Eforie"); break;
-         case  Fagaras:   printf("Fagaras"); break;
-         case  Giurgiu:   printf("Giurgiu"); break;
-         case  Hirsova:   printf("Hirsova"); break;
-         case  Iasi:      printf("Iasi"); break;
-         case  Lugoj:     printf("Lugoj"); break;
-         case  Mehadia:   printf("Mehadia"); break;
-         case  Neamt:     printf("Neamt"); break;
-         case  Oradea:    printf("Oradea"); break;
-         case  Pitesti:   printf("Pitesti"); break;
-         case  Rimnicu_Vilcea: printf("Rimnicu Vilcea"); break;
-         case  Sibiu:     printf("Sibiu"); break;
-         case  Timisoara: printf("Timisoara"); break;
-         case  Urziceni:  printf("Urziceni"); break;
-         case  Vaslui:    printf("Vaslui"); break;
-         case  Zerind:    printf("Zerind"); break;
-    }  
+    int i;
+    printf("Cube State: ");
+    for(i = 0; i < 54; i++) {
+        printf("%d", state->stickers[i]);
+    }
+    printf("\n");
 }
 
 //______________________________________________________________________________
 void Print_Action(const enum ACTIONS action)
 {
    switch(action){
-         case  Go_Arad:      printf("Go_Arad"); break;
-         case  Go_Bucharest: printf("Go_Bucharest"); break;
-         case  Go_Craiova:   printf("Go_Craiova"); break;
-         case  Go_Drobeta:   printf("Go_Drobeta"); break;
-         case  Go_Eforie:    printf("Go_Eforie"); break;
-         case  Go_Fagaras:   printf("Go_Fagaras"); break;
-         case  Go_Giurgiu:   printf("Go_Giurgiu"); break;
-         case  Go_Hirsova:   printf("Go_Hirsova"); break;
-         case  Go_Iasi:      printf("Go_Iasi"); break;
-         case  Go_Lugoj:     printf("Go_Lugoj"); break;
-         case  Go_Mehadia:   printf("Go_Mehadia"); break;
-         case  Go_Neamt:     printf("Go_Neamt"); break;
-         case  Go_Oradea:    printf("Go_Oradea"); break;
-         case  Go_Pitesti:   printf("Go_Pitesti"); break;
-         case  Go_Rimnicu_Vilcea: printf("Go_Rimnicu_Vilcea"); break;
-         case  Go_Sibiu:     printf("Go_Sibiu"); break;
-         case  Go_Timisoara: printf("Go_Timisoara"); break;
-         case  Go_Urziceni:  printf("Go_Urziceni"); break;
-         case  Go_Vaslui:    printf("Go_Vaslui"); break;
-         case  Go_Zerind:    printf("Go_Zerind"); break;
+        case NO_ACTION:     printf("NO ACTION"); break;
+        case MOVE_U:        printf("U"); break;
+        case MOVE_D:        printf("D"); break;
+        case MOVE_L:        printf("L"); break;
+        case MOVE_R:        printf("R"); break;
+        case MOVE_F:        printf("F"); break;
+        case MOVE_B:        printf("B"); break;
+        case MOVE_U_PRIME:  printf("U'"); break;
+        case MOVE_D_PRIME:  printf("D'"); break;
+        case MOVE_L_PRIME:  printf("L'"); break;
+        case MOVE_R_PRIME:  printf("R'"); break;
+        case MOVE_F_PRIME:  printf("F'"); break;
+        case MOVE_B_PRIME:  printf("B'"); break;
     }        
 }
 
