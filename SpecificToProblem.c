@@ -110,18 +110,99 @@ int Result(const State *const parent_state, const enum ACTIONS action, Transitio
         switch (action)
     {
         case MOVE_U:
-            unsigned char temp = trans_model->new_state.stickers[0];
-            trans_model->new_state.stickers[0] = trans_model->new_state.stickers[6];
-            trans_model->new_state.stickers[6] = trans_model->new_state.stickers[8];
-            trans_model->new_state.stickers[8] = trans_model->new_state.stickers[2];
-            trans_model->new_state.stickers[2] = temp;
-            break;
+
+    unsigned char temp_corner = s->stickers[0];
+    s->stickers[0] = s->stickers[6];
+    s->stickers[6] = s->stickers[8];
+    s->stickers[8] = s->stickers[2];
+    s->stickers[2] = temp_corner;
+
+    unsigned char temp_edge = s->stickers[1];
+    s->stickers[1] = s->stickers[3];
+    s->stickers[3] = s->stickers[7];
+    s->stickers[7] = s->stickers[5];
+    s->stickers[5] = temp_edge;
+
+    unsigned char temp_side[3];
+    temp_side[0] = s->stickers[9];
+    temp_side[1] = s->stickers[10];
+    temp_side[2] = s->stickers[11];
+
+    s->stickers[9] = s->stickers[18];
+    s->stickers[10] = s->stickers[19];
+    s->stickers[11] = s->stickers[20];
+
+    s->stickers[18] = s->stickers[27];
+    s->stickers[19] = s->stickers[28];
+    s->stickers[20] = s->stickers[29];
+
+    s->stickers[27] = s->stickers[36];
+    s->stickers[28] = s->stickers[37];
+    s->stickers[29] = s->stickers[38];
+
+    s->stickers[36] = temp_side[0];
+    s->stickers[37] = temp_side[1];
+    s->stickers[38] = temp_side[2];
+               break;
 
         case MOVE_U_PRIME:
+
+    unsigned char temp_corner = s->stickers[0];
+    s->stickers[0] = s->stickers[2];
+    s->stickers[2] = s->stickers[8];
+    s->stickers[8] = s->stickers[6];
+    s->stickers[6] = temp_corner;
+
+    unsigned char temp_edge = s->stickers[1];
+    s->stickers[1] = s->stickers[5];
+    s->stickers[5] = s->stickers[7];
+    s->stickers[7] = s->stickers[3];
+    s->stickers[3] = temp_edge;
+
+    unsigned char temp_side[3];
+    temp_side[0] = s->stickers[9];
+    temp_side[1] = s->stickers[10];
+    temp_side[2] = s->stickers[11];
+
+    s->stickers[9] = s->stickers[36];
+    s->stickers[10] = s->stickers[37];
+    s->stickers[11] = s->stickers[38];
+
+    s->stickers[36] = s->stickers[27];
+    s->stickers[37] = s->stickers[28];
+    s->stickers[38] = s->stickers[29];
+
+    s->stickers[27] = s->stickers[18];
+    s->stickers[28] = s->stickers[19];
+    s->stickers[29] = s->stickers[20];
+
+    s->stickers[18] = temp_side[0];
+    s->stickers[19] = temp_side[1];
+    s->stickers[20] = temp_side[2];
             break;
 
-        case MOVE_F:
-            break;
+            case MOVE_D:
+                break;
+
+            case MOVE_D_PRIME:
+                break;
+case MOVE_L:
+                break;
+ case MOVE_L_PRIME:
+                break;
+ case MOVE_R:
+                break;
+ case MOVE_R_PRIME:
+                break;
+case MOVE_F:
+                break;
+case MOVE_F_PRIME:
+                break;
+case MOVE_B:
+                break;
+case MOVE_B_PRIME:
+                break;
+
     }
          trans_model->new_state=next_state;
     trans_model->step_cost = 1.0f;
