@@ -182,9 +182,75 @@ int Result(const State *const parent_state, const enum ACTIONS action, Transitio
             break;
 
             case MOVE_D:
-                break;
+
+    unsigned char temp_corner = s->stickers[45];
+    s->stickers[45] = s->stickers[47];
+    s->stickers[47] = s->stickers[53];
+    s->stickers[53] = s->stickers[51];
+    s->stickers[51] = temp_corner;
+
+    unsigned char temp_edge = s->stickers[46];
+    s->stickers[46] = s->stickers[50];
+    s->stickers[50] = s->stickers[52];
+    s->stickers[52] = s->stickers[48];
+    s->stickers[48] = temp_edge;
+
+    unsigned char temp_side[3];
+    temp_side[0] = s->stickers[15];
+    temp_side[1] = s->stickers[16];
+    temp_side[2] = s->stickers[17];
+
+    s->stickers[15] = s->stickers[24];
+    s->stickers[16] = s->stickers[25];
+    s->stickers[17] = s->stickers[26];
+
+    s->stickers[24] = s->stickers[33];
+    s->stickers[25] = s->stickers[34];
+    s->stickers[26] = s->stickers[35];
+
+    s->stickers[33] = s->stickers[42];
+    s->stickers[34] = s->stickers[43];
+    s->stickers[35] = s->stickers[44];
+
+    s->stickers[42] = temp_side[0];
+    s->stickers[43] = temp_side[1];
+    s->stickers[44] = temp_side[2];
+            break;
 
             case MOVE_D_PRIME:
+    unsigned char temp_corner = s->stickers[45];
+    s->stickers[45] = s->stickers[51];
+    s->stickers[51] = s->stickers[53];
+    s->stickers[53] = s->stickers[47];
+    s->stickers[47] = temp_corner;
+
+    unsigned char temp_edge = s->stickers[46];
+    s->stickers[46] = s->stickers[48];
+    s->stickers[48] = s->stickers[52];
+    s->stickers[52] = s->stickers[50];
+    s->stickers[50] = temp_edge;
+
+    unsigned char temp_side[3];
+    temp_side[0] = s->stickers[15];
+    temp_side[1] = s->stickers[16];
+    temp_side[2] = s->stickers[17];
+
+    s->stickers[15] = s->stickers[42];
+    s->stickers[16] = s->stickers[43];
+    s->stickers[17] = s->stickers[44];
+
+    s->stickers[42] = s->stickers[33];
+    s->stickers[43] = s->stickers[34];
+    s->stickers[44] = s->stickers[35];
+
+    s->stickers[33] = s->stickers[24];
+    s->stickers[34] = s->stickers[25];
+    s->stickers[35] = s->stickers[26];
+
+    s->stickers[24] = temp_side[0];
+    s->stickers[25] = temp_side[1];
+    s->stickers[26] = temp_side[2];
+
                 break;
 case MOVE_L:
                 break;
