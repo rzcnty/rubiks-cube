@@ -1,17 +1,35 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "GRAPH_SEARCH.h"
 #include "data_types.h"
 
+State* Create_Goal_State()
+{
+    State *goal = (State*)malloc(sizeof(State));
+    if(goal == NULL) {
+        Warning_Memory_Allocation();
+    }
+    int i;
+    for (i = 0; i < 9; i++)  goal->stickers[i] = 0; // Up: White
+    for (i = 9; i < 18; i++) goal->stickers[i] = 1; // Left: Orange
+    for (i = 18; i < 27; i++) goal->stickers[i] = 2; // Front: Green
+    for (i = 27; i < 35; i++) goal->stickers[i] = 3; // Right: Red
+    for (i = 35; i < 45; i++) goal->stickers[i] = 4; // Back: Blue
+    for (i = 45; i < 54; i++) goal->stickers[i] = 5; // Down: Yellow
+
+    return goal;
+}
+
+
 int main()
-{	
-    Node root, *goal;
-    State *goal_state = NULL;
+{
+    Node *root_node;
+    Node *goal_node;
+    State *initial_state;
+    State *goal_state;
     enum METHODS method;
-    int Max_Level, level;
-	float alpha;
-   
-    // This part must be updated if a new algorithm is added. 
+
     printf("1 --> Breast-First Search\n");
     printf("2 --> Uniform-Cost Search\n");
     printf("3 --> Depth-First Search\n");
@@ -19,68 +37,76 @@ int main()
     printf("5 --> Iterative Deepening Search\n");
     printf("6 --> Greedy Search\n");
     printf("7 --> A* Search\n");
-    printf("8 --> Generalized A* Search\n");
+    printf("8 --> Generalized A* Search (Not Implemented)\n");
+    printf("9 --> Iterative Deepening A* (IDA*)\n");
     printf("Select a method to solve the problem: ");
     scanf("%d", &method);
-    if(method==DepthLimitedSearch){
-	    printf("Enter maximum level for depth-limited search : ");                         
-	    scanf("%d", &Max_Level);                  
-	}  
-	if(method==GeneralizedAStarSearch){
-	    printf("Enter value of alpha for Generalized A* Search : ");                         
-	    scanf("%f", &alpha);                  
-	}   
-    
-    // Creating the root node ... 
-    root.parent    = NULL;
-    root.path_cost = 0;
-    root.action    = NO_ACTION; // The program will not use this part. (NO_ACTION-->0)
-    root.Number_of_Child = 0;
-    	
-    printf("======== SELECTION OF INITIAL STATE =============== \n");
-    root.state     = *(Create_State());
-    
-    if(PREDETERMINED_GOAL_STATE)  // User will determine the goal state if it is true
-    {
-	    printf("======== SELECTION OF GOAL STATE =============== \n"); 
-	    goal_state = Create_State();
+
+    printf("\n======== ENTER INITIAL STATE =============== \n");
+    initial_state = Create_State();
+
+    goal_state = Create_Goal_State();
+    printf("\nGoal state is the solved cube.\n");
+    Print_State(goal_state);
+    printf("============================================\n\n");
+
+    root_node = (Node*)malloc(sizeof(Node));
+    if(root_node == NULL) {
+        Warning_Memory_Allocation();
     }
-    
-    if(method==GreedySearch || method==AStarSearch || method==GeneralizedAStarSearch){
-        root.state.h_n  = Compute_Heuristic_Function(&(root.state), goal_state);
-        if(PREDETERMINED_GOAL_STATE)
-        	goal_state->h_n = 0;                 
-	}  
-    	
-    switch(method) 
+    root_node->parent = NULL;
+    root_node->path_cost = 0;
+    root_node->action = NO_ACTION;
+    root_node->Number_of_Child = 0;
+    root_node->state = *initial_state;
+
+    free(initial_state);
+
+    switch(method)
     {
-        case BreastFirstSearch: 
-        case GreedySearch:               
-            goal = First_GoalTest_Search_TREE(method, &root, goal_state);  break; 
-		case DepthFirstSearch: 	
-		case DepthLimitedSearch: 
-			goal = DepthType_Search_TREE(method, &root, goal_state, Max_Level);  break;  
-        case IterativeDeepeningSearch:
-            for(level=0; TRUE ;level++){
-            	goal = DepthType_Search_TREE(method, &root, goal_state, level);
-            	if(goal!=FAILURE){
-            		printf("The goal is found in level %d.\n", level); 
-            		break;
-				}		
-			}
-            break;     
-        case UniformCostSearch: 
-        case AStarSearch:   
-		case GeneralizedAStarSearch:   
-            goal = First_InsertFrontier_Search_TREE(method, &root, goal_state, alpha);  break;      
-     
-        default: 
-            printf("ERROR: Unknown method.\n");  
-            exit(-1);    
+        case BreastFirstSearch:
+        case UniformCostSearch:
+        case GreedySearch:
+        case AStarSearch:
+            goal_node = First_GoalTest_Search_TREE(method, root_node, goal_state);
+            break;
+        case DepthFirstSearch: {
+            goal_node = DepthType_Search_TREE(method, root_node, goal_state, -1); // -1 = limitsiz
+            break;
+        }
+        case DepthLimitedSearch: {
+            int max_level;
+            printf("Enter maximum level for depth-limited search: ");
+            scanf("%d", &max_level);
+            goal_node = DepthType_Search_TREE(method, root_node, goal_state, max_level);
+            break;
+        }
+        case IterativeDeepeningSearch: {
+            int level;
+            for(level = 0; ; level++){
+                printf("Trying with level limit: %d\n", level);
+                goal_node = DepthType_Search_TREE(IterativeDeepeningSearch, root_node, goal_state, level);
+                if(goal_node != FAILURE){
+                    printf("Goal found at level %d.\n", level);
+                    break;
+                }
+            }
+            break;
+        }
+        case IterativeDeepeningA*: {
+
+            break;
+        }
+
+        default:
+            printf("ERROR: Unknown or not-yet-implemented method.\n");
+            goal_node = FAILURE;
+            exit(-1);
     }
 
-    Show_Solution_Path(goal);
-  	
+    Show_Solution_Path(goal_node);
+
+    free(goal_state);
+
     return 0;
 }
-

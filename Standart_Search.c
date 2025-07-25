@@ -74,21 +74,18 @@ Node* First_InsertFrontier_Search_TREE(const enum METHODS method, Node *const ro
 						}  
                         Insert_Priority_Queue_UniformSearch(child, &frontier); break;
                     case AStarSearch:
-                    	if(temp_node!=NULL){
-							if(child->path_cost + child->state.h_n < temp_node->path_cost + temp_node->state.h_n) // child.STATE has been in frontier with higher cost
-								Remove_Node_From_Frontier(temp_node, &frontier);	
-							else // child.STATE has already been in frontier with lower cost 
-							    continue;	
-						} 
-                        child->state.h_n = Compute_Heuristic_Function(&(child->state), goal_state); 
-                        Insert_Priority_Queue_A_Star(child, &frontier); break; 
-					case GeneralizedAStarSearch:
-                    	// complete here for the assingment 
-						// complete here for the assingment 
-						// complete here for the assingment 
-						// complete here for the assingment 
-						// complete here for the assingment 	    
-                    default:
+                        child->h_n = Compute_Heuristic_Function(&(child->state), goal_state);
+                        if(temp_node != NULL){
+                            if( (child->path_cost + child->h_n) < (temp_node->path_cost + temp_node->h_n) ) {
+                                Remove_Node_From_Frontier(temp_node, &frontier);
+                            } else {
+                                free(child);
+                                Number_Allocated_Nodes--;
+                                continue;
+                            }
+                        }
+                        Insert_Priority_Queue_A_Star(child, &frontier);
+                        break;                    default:
                         printf("ERROR: Unknown method in First_InsertFrontier_Search_TREE.\n");
 						Delete_Hash_Table(explorer_set);  
                         exit(-1);     	   
@@ -426,35 +423,39 @@ void Insert_Priority_Queue_GreedySearch(Node *const child, Queue **frontier)
 //______________________________________________________________________________
 void Insert_Priority_Queue_A_Star(Node *const child, Queue **frontier) 
 {  
-    Queue *temp_queue;  
+     Queue *temp_queue;
     Queue *new_queue = (Queue*)malloc(sizeof(Queue));
     if(new_queue==NULL)
-        Warning_Memory_Allocation(); 
-        
+        Warning_Memory_Allocation();
+
 	new_queue->node = child;
-	 
+
     if(Empty(*frontier)){
-        new_queue->next = NULL;                 
-	 	*frontier = new_queue; 
+        new_queue->next = NULL;
+	 	*frontier = new_queue;
     }
-	else{ // If frontier is not empty, find appropriate element according to ordered evaluation function values. 
-	    if(child->path_cost + child->state.h_n < (*frontier)->node->path_cost + (*frontier)->node->state.h_n) { // Child has the lowest cost evaluation function value
+	else{
+        // f(n) = g(n) + h(n)
+        float child_f_n = child->path_cost + child->h_n;
+        float frontier_f_n = (*frontier)->node->path_cost + (*frontier)->node->h_n;
+
+	    if(child_f_n < frontier_f_n) {
 	        new_queue->next = *frontier;
-            *frontier = new_queue; 
+            *frontier = new_queue;
         }
         else{
             for(temp_queue = *frontier; temp_queue->next != NULL; temp_queue = temp_queue->next){
-                if(child->path_cost + child->state.h_n < temp_queue->next->node->path_cost + temp_queue->next->node->state.h_n){ 
-                     new_queue->next = temp_queue->next;   
+                float next_frontier_f_n = temp_queue->next->node->path_cost + temp_queue->next->node->h_n;
+                if(child_f_n < next_frontier_f_n){
+                     new_queue->next = temp_queue->next;
                      temp_queue->next = new_queue;
                      return;
-                }                                              
-            } //If child has the highest evaluation function value
-            temp_queue->next = new_queue;  
-            new_queue->next = NULL;                       
-        } 		
-	}      
-}
+                }
+            }
+            temp_queue->next = new_queue;
+            new_queue->next = NULL;
+        }
+	}    }
 
 //______________________________________________________________________________
 void Insert_Priority_Queue_GENERALIZED_A_Star(Node *const child, Queue **frontier, float alpha) 
@@ -607,10 +608,8 @@ void Warning_Memory_Allocation()
 //______________________________________________________________________________
 int Compare_States(const State *const state1, const State *const state2)
 {
-	unsigned char key1[MAX_KEY_SIZE], key2[MAX_KEY_SIZE];
-	Generate_HashTable_Key(state1, key1);
-	Generate_HashTable_Key(state2, key2);	
-	return !strcmp(key1, key2); 
+    if (memcmp(state1->stickers, state2->stickers, sizeof(State)) == 0) {
+        return TRUE;
+    }
+    return FALSE;
 }
-
-

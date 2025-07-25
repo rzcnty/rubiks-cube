@@ -52,6 +52,7 @@ typedef struct Node
     enum ACTIONS action; //The action applied to the parent to generate this node
     struct Node *parent;
     int Number_of_Child; // required for depth-first search algorithms
+    float h_n;
 }Node;
 
 typedef struct Queue  // Used for frontier
