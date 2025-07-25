@@ -40,7 +40,7 @@ int main()
     printf("8 --> Generalized A* Search (Not Implemented)\n");
     printf("9 --> Iterative Deepening A* (IDA*)\n");
     printf("Select a method to solve the problem: ");
-    scanf("%d", &method);
+    scanf("%d", (int*)&method);
 
     printf("\n======== ENTER INITIAL STATE =============== \n");
     initial_state = Create_State();
@@ -67,9 +67,9 @@ int main()
         case BreastFirstSearch:
         case UniformCostSearch:
         case GreedySearch:
+            goal_node = First_GoalTest_Search_TREE(method, root_node, goal_state)
+                break;
         case AStarSearch:
-            goal_node = First_GoalTest_Search_TREE(method, root_node, goal_state);
-            break;
         case DepthFirstSearch: {
             goal_node = DepthType_Search_TREE(method, root_node, goal_state, -1); // -1 = limitsiz
             break;
@@ -93,7 +93,8 @@ int main()
             }
             break;
         }
-        case IterativeDeepeningA*: {
+        case IterativeDeepeningAStar: {
+            goal_node = First_InsertFrontier_Search_TREE(method, root_node, goal_state, 0.0);
 
             break;
         }
@@ -103,7 +104,6 @@ int main()
             goal_node = FAILURE;
             exit(-1);
     }
-
     Show_Solution_Path(goal_node);
 
     free(goal_state);

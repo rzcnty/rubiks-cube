@@ -11,7 +11,7 @@
 #include <string.h>
 #include "GRAPH_SEARCH.h"
 #include "data_types.h"
-#include "hashTable.h"
+#include "HashTable.h"
 
 //______________________________________________________________________________
 Node* First_InsertFrontier_Search_TREE(const enum METHODS method, Node *const root, State *const goal_state, float alpha)
@@ -154,8 +154,6 @@ Node* First_GoalTest_Search_TREE(const enum METHODS method, Node *const root, St
 			        printf("\nThe number of generated nodes is : %d\n", Number_Generated_Nodes);
 			        printf("\nThe number of generated nodes in memory is : %d\n", Number_Allocated_Nodes);
 			        Delete_Hash_Table(explorer_set);
-			        if(method==GreedySearch && !PREDETERMINED_GOAL_STATE)
-			            child->state.h_n = Compute_Heuristic_Function(&(child->state), goal_state);
 			        return child;
 			    }
 
@@ -163,7 +161,7 @@ Node* First_GoalTest_Search_TREE(const enum METHODS method, Node *const root, St
                     case BreastFirstSearch:      
                         Insert_FIFO(child, &frontier); break;   
                     case GreedySearch:
-                        child->state.h_n = Compute_Heuristic_Function(&(child->state), goal_state);
+                        child->h_n = Compute_Heuristic_Function(&(child->state), goal_state);
                         Insert_Priority_Queue_GreedySearch(child, &frontier); break;   
                     default:
                         printf("ERROR: Unknown method in First_GoalTest_Search_TREE.\n");  
@@ -327,9 +325,9 @@ void Insert_FIFO(Node *const child, Queue **frontier)
 {  
     Queue *temp_queue;  
     Queue *new_queue = (Queue*)malloc(sizeof(Queue));
-    if(new_queue==NULL)
+    if(new_queue==NULL) {
     	Warning_Memory_Allocation(); 
-
+}
 	new_queue->node = child;
 	new_queue->next = NULL;
 	 
@@ -359,9 +357,9 @@ void Insert_Priority_Queue_UniformSearch(Node *const child, Queue **frontier)
 {  
     Queue *temp_queue;  
     Queue *new_queue = (Queue*)malloc(sizeof(Queue));
-    if(new_queue==NULL)
+    if(new_queue==NULL) {
         Warning_Memory_Allocation(); 
-        
+        }
 	new_queue->node = child;
 	 
     if(Empty(*frontier)){
@@ -402,13 +400,13 @@ void Insert_Priority_Queue_GreedySearch(Node *const child, Queue **frontier)
 	 	*frontier = new_queue; 
     }
 	else{ // If frontier is not empty, find appropriate element according to ordered cost. 
-	    if(child->state.h_n < (*frontier)->node->state.h_n){ // Child has lowest cost
+	    if(child->h_n < (*frontier)->node->h_n){ // Child has lowest cost
 	        new_queue->next = *frontier;
             *frontier = new_queue; 
         }
         else{
             for(temp_queue = *frontier; temp_queue->next != NULL; temp_queue = temp_queue->next){
-                if(child->state.h_n < temp_queue->next->node->state.h_n){ 
+                if(child->h_n < temp_queue->next->node->h_n){
                      new_queue->next = temp_queue->next;   
                      temp_queue->next = new_queue;
                      return;
@@ -587,9 +585,9 @@ void Clear_All_Branch(Node *node, int *Number_Allocated_Nodes)
 
 void Clear_Single_Branch(Node *node, int *Number_Allocated_Nodes)
 {
-    if(Level_of_Node(node)==0)
+    if(Level_of_Node(node)==0) {
     	return;
-	
+	}
 	printf("\nCLEARING: ");
 	Print_Node(node);
 	printf("\n"); 

@@ -534,6 +534,9 @@ unsigned char temp_corner = s->stickers[36];
 
                 break; }
 
+    default:
+        break;
+
     }
          trans_model->new_state=next_state;
     trans_model->step_cost = 1.0f;
