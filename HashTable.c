@@ -1,205 +1,95 @@
-
-#include "data_types.h"
-#include "HashTable.h"
-#include "GRAPH_SEARCH.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
-#include <string.h>
+#include "data_types.h"
+#include "HashTable.h"
+#include "GRAPH_SEARCH.h"
 
+typedef struct HashNode {
+    State state;
+    struct HashNode* next;
+} HashNode;
 
-// =========  YOUR COMPULSORY (BUT SPECIFIC TO THE PROBLEM) FUNCTIONS =======
+struct Hash_Table {
+    int size;
+    HashNode** buckets;
+};
 
-//___________________ Create unique char key for each state______________________
-void Generate_HashTable_Key(const State *const state, unsigned char* key)
-{
-    memcpy(key, state->stickers, 54);
-    key[54] = '\0';
-	if(55 > MAX_KEY_SIZE){
-		printf("ERROR: MAX_KEY_SIZE must be at least 55 for Rubik's Cube state.\n");
-		exit(-1);
-	}
-}
+// Basit ama etkili bir hash fonksiyonu (djb2 algoritması)
+// String değil, byte dizisi üzerinde çalışır.
+static unsigned long hash_function(const State* state) {
+    unsigned long hash = 5381;
+    int c;
+    int i;
+    const unsigned char* str = state->stickers;
 
-
-// ======= YOU DO NOT NEED TO CHANGE THIS COMPULSORY DECLARATIONS ==============
-
-//___________________ Determine whether x is prime or not______________________
-static int is_prime(const unsigned int x) {
-	int i;
-	
-    if(x<2) 
-		return FALSE; 
-		
-	for(i=2; i<=x/2; i++){
-		if(x%i==0)
-			return FALSE;
-	}	
-	
-	return TRUE; 	   
-}
-
- //________ Return the next prime after x, or x if x is prime_________________
-static unsigned next_prime(unsigned int x) {
-    while (is_prime(x) == FALSE) {
-        x++;
+    for (i = 0; i < 54; i++) {
+        c = str[i];
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
     }
-    return x;
-}
 
-//___________________ Hash Function __________________________________
-static unsigned int hash_func(const char* key, const int size) {
-    unsigned int hash = 0, i;
-    // a should be a prime number larger than the size of the alphabet
-    const int a = 151; 
-    const int length_key = strlen(key);
-    
-    for (i = 0; i < length_key; i++){
-    	hash += (unsigned int)pow(a, length_key - (i+1)) * key[i];
-    	hash = hash % size;
-	} 
-	  
     return hash;
 }
 
-//___________________ Create new Hash Table______________________
-Hash_Table* New_Hash_Table(const int size) {      
+Hash_Table* New_Hash_Table(const int size) {
     Hash_Table* ht = (Hash_Table*)malloc(sizeof(Hash_Table));
-    if(ht==NULL)
-        Warning_Memory_Allocation(); 
-
-    ht->size = next_prime(size);
-
-    ht->count = 0;
-    
-    ht->State_Key = (unsigned char**)calloc(ht->size, sizeof(unsigned char*));
-    if(ht->State_Key==NULL)
-        Warning_Memory_Allocation(); 
-        
+    if (ht == NULL) {
+        Warning_Memory_Allocation();
+    }
+    ht->size = size;
+    ht->buckets = (HashNode**)calloc(ht->size, sizeof(HashNode*));
+    if (ht->buckets == NULL) {
+        Warning_Memory_Allocation();
+    }
     return ht;
 }
 
-//___________________ Insert __________________________________
-void ht_insert(Hash_Table *ht, const State *const state) {
-    char key[MAX_KEY_SIZE];    
-    	
-	Generate_HashTable_Key(state, key);
-	ht_insert_key(ht, key);
-}
+// Hash Tablosuna yeni bir durum ekler
+void ht_insert(Hash_Table* ht, const State* state) {
+    unsigned long hash = hash_function(state);
+    int index = hash % ht->size;
 
-void ht_insert_key(Hash_Table *ht, const char *key) {
-    unsigned int index;
-    unsigned const int load = ht->count * 100 / ht->size;
-    unsigned int new_size;  
-    
-    if (load > HASH_TABLE_INCREASING_RATE) {
-        new_size = ht->size * 2;
-        Resize_Hash_Table(ht, new_size);
-    }
-    
-    if(ht->size==ht->count){
-    	printf("ERROR: Hash table is full.\n");
-		exit(-1);	
-	}	
-	
-	index = hash_func(key, ht->size);
-    while (ht->State_Key[index] != NULL) {
-    	if(index==ht->size-1)
-    		index = 0; 
-    	else
-		    index++;
-    } 
-    
-    ht->State_Key[index] = (unsigned char*)malloc(MAX_KEY_SIZE*sizeof(unsigned char*));
-    if(ht->State_Key[index]==NULL)
+    HashNode* new_node = (HashNode*)malloc(sizeof(HashNode));
+    if (new_node == NULL) {
         Warning_Memory_Allocation();
-    strcpy(ht->State_Key[index], key);
-    ht->count++;
+    }
+    memcpy(&new_node->state, state, sizeof(State));
+
+    new_node->next = ht->buckets[index];
+    ht->buckets[index] = new_node;
 }
 
-//___________________ Search __________________________________
-int ht_search(Hash_Table *ht, const State *const state) {
-	char key[MAX_KEY_SIZE]; 
-    unsigned int first_index, index;
-    
-    Generate_HashTable_Key(state, key);
-    index       = hash_func(key, ht->size);
-    first_index = index; 
-    
-    printf("key = %s,  index = %u\n", key, index);
-    
-    while (ht->State_Key[index] != NULL) {
-    	if (strcmp(ht->State_Key[index], key) == 0)
-    		return TRUE;
-    	
-    	if(index==ht->size-1)
-    		index = 0; 
-    	else
-		    index++;
-		    
-		if(index==first_index)
-		   return FALSE;	    
-    } 
-    
-    return FALSE;   
-}
+// Hash Tablosunda bir durumu arar
+int ht_search(const Hash_Table* ht, const State* state) {
+    unsigned long hash = hash_function(state);
+    int index = hash % ht->size;
 
-//________ Resize Hash Table ___________________________________
-void Resize_Hash_Table(Hash_Table* ht, const int size) {
-	int i;
-	unsigned int temp_size, temp_count;
-	unsigned char** temp_key;
-    Hash_Table *new_ht = New_Hash_Table(size);
-    
-    // create new larger hash table
-    for (i = 0; i < ht->size; i++) {
-        if (ht->State_Key[i] != NULL) {
-            ht_insert_key(new_ht, ht->State_Key[i]);
+    // O kovanın başındaki düğüme git
+    HashNode* current = ht->buckets[index];
+
+    // Bağlı liste boyunca ilerle
+    while (current != NULL) {
+        // State'leri byte-byte karşılaştır
+        if (Compare_States(¤t->state, state) == TRUE) {
+            return TRUE; // Bulundu!
         }
+        current = current->next;
     }
 
-    // swap size
-    temp_size    = ht->size;
-    ht->size     = new_ht->size;
-    new_ht->size = temp_size;
-    
-    // swap count
-    temp_count    = ht->count;
-    ht->count     = new_ht->count;
-    new_ht->count = temp_count;
-    
-    // swap keys
-    temp_key          = ht->State_Key;
-    ht->State_Key     = new_ht->State_Key;
-    new_ht->State_Key = temp_key;
-
-    Delete_Hash_Table(new_ht);
+    return FALSE; // Bulunamadı
 }
 
-//________ Delete Hash Table ___________________________________
-void Delete_Hash_Table(Hash_Table *ht)
-{
-	int i;
-
+// Hash Tablosunu ve içindeki tüm düğümleri temizler
+void Delete_Hash_Table(Hash_Table* ht) {
+    int i;
     for (i = 0; i < ht->size; i++) {
-        if (ht->State_Key[i] != NULL) {
-            free(ht->State_Key[i]);
+        HashNode* current = ht->buckets[i];
+        while (current != NULL) {
+            HashNode* temp = current;
+            current = current->next;
+            free(temp);
         }
     }
-    free(ht->State_Key);
-    free(ht);  
+    free(ht->buckets);
+    free(ht);
 }
-
-//___________________ Show hash table __________________________________
-void Show_Hash_Table(Hash_Table *ht) {
-    unsigned int i;
-    
-    printf("\nHASH TABLE IS (Size = %u, Count = %u ): \n", ht->size, ht->count);
-    for (i=0; i<ht->size; i++) 
-    	if (ht->State_Key[i] != NULL)
-    		printf("[%u] --> %s\n", i, ht->State_Key[i]);
-}
-
-
-

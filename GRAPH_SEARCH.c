@@ -67,7 +67,7 @@ int main()
         case BreastFirstSearch:
         case UniformCostSearch:
         case GreedySearch:
-            goal_node = First_GoalTest_Search_TREE(method, root_node, goal_state)
+            goal_node = First_GoalTest_Search_TREE(method, root_node, goal_state);
                 break;
         case AStarSearch:
         case DepthFirstSearch: {

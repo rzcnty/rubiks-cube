@@ -73,6 +73,7 @@ Node* First_InsertFrontier_Search_TREE(const enum METHODS method, Node *const ro
 							    continue;		
 						}  
                         Insert_Priority_Queue_UniformSearch(child, &frontier); break;
+                    case IterativeDeepeningAStar:
                     case AStarSearch:
                         child->h_n = Compute_Heuristic_Function(&(child->state), goal_state);
                         if(temp_node != NULL){
@@ -85,12 +86,13 @@ Node* First_InsertFrontier_Search_TREE(const enum METHODS method, Node *const ro
                             }
                         }
                         Insert_Priority_Queue_A_Star(child, &frontier);
-                        break;                    default:
+                        break;
+
+                    default:
                         printf("ERROR: Unknown method in First_InsertFrontier_Search_TREE.\n");
-						Delete_Hash_Table(explorer_set);  
-                        exit(-1);     	   
-                }
-				Print_Frontier(frontier);	
+						Delete_Hash_Table(explorer_set);
+                        exit(-1);
+                }				Print_Frontier(frontier);
 			}	            
 		}    
     } 
