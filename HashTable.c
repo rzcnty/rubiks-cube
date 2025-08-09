@@ -70,7 +70,7 @@ int ht_search(const Hash_Table* ht, const State* state) {
     // Bağlı liste boyunca ilerle
     while (current != NULL) {
         // State'leri byte-byte karşılaştır
-        if (Compare_States(¤t->state, state) == TRUE) {
+        if (Compare_States(&current->state, state) == TRUE) {
             return TRUE; // Bulundu!
         }
         current = current->next;

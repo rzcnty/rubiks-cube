@@ -28,6 +28,7 @@ int Goal_Test(const State *const state, const State *const goal_state);
 Node* First_GoalTest_Search_TREE(const enum METHODS method, Node *const root, State *const goal_state);
 Node* First_InsertFrontier_Search_TREE(const enum METHODS method, Node *const root, State *const goal_state, float alpha); // Update for THE GENERALIZED A* 
 Node* DepthType_Search_TREE(const enum METHODS method, Node *const root, State *const goal_state, const int Max_Level);
+Node* IDA_Star_Search(Node* root, State* goal_state);
 Node* Child_Node(Node *const parent, const enum ACTIONS action); 
 Queue* Start_Frontier(Node *const root);
 int Empty(const Queue *const frontier);
@@ -44,6 +45,7 @@ void Print_Node(const Node *const node);
 int Level_of_Node(Node *const node);
 void Clear_All_Branch(Node *node, int *Number_Allocated_Nodes);
 void Clear_Single_Branch(Node *node, int *Number_Allocated_Nodes);
+void IDA_Clear_Branch(Node *node);
 void Warning_Memory_Allocation();
 int Compare_States(const State *const state1, const State *const state2);
 Node* Frontier_search(Queue *const frontier, const State *const state);

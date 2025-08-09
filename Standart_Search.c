@@ -26,10 +26,10 @@ Node* First_InsertFrontier_Search_TREE(const enum METHODS method, Node *const ro
 	
 	// a priority queue ordered by PATH-COST(or evaluation function f), with node as the only element		  
     frontier = Start_Frontier(root);  
-	Print_Frontier(frontier);	
+	//Print_Frontier(frontier);
     
     explorer_set =  New_Hash_Table(HASH_TABLE_BASED_SIZE);
-	Show_Hash_Table(explorer_set);
+	//Show_Hash_Table(explorer_set);
 	
     while(Number_Searched_Nodes<MAX_SEARCHED_NODE) 
     {
@@ -49,7 +49,7 @@ Node* First_InsertFrontier_Search_TREE(const enum METHODS method, Node *const ro
 		}
 		
 		ht_insert(explorer_set, &(node->state));       
-		Show_Hash_Table(explorer_set);
+		//Show_Hash_Table(explorer_set);
 				                                
         for(action=0; action<ACTIONS_NUMBER; action++)
 		{
@@ -92,7 +92,7 @@ Node* First_InsertFrontier_Search_TREE(const enum METHODS method, Node *const ro
                         printf("ERROR: Unknown method in First_InsertFrontier_Search_TREE.\n");
 						Delete_Hash_Table(explorer_set);
                         exit(-1);
-                }				Print_Frontier(frontier);
+                }				//Print_Frontier(frontier);
 			}	            
 		}    
     } 
@@ -123,10 +123,10 @@ Node* First_GoalTest_Search_TREE(const enum METHODS method, Node *const root, St
     }
 	
 	frontier = Start_Frontier(root);
-	Print_Frontier(frontier);
+	//Print_Frontier(frontier);
 	
 	explorer_set =  New_Hash_Table(HASH_TABLE_BASED_SIZE);
-	Show_Hash_Table(explorer_set);
+	//Show_Hash_Table(explorer_set);
 	  
     while(Number_Searched_Nodes<MAX_SEARCHED_NODE) 
     {
@@ -136,7 +136,7 @@ Node* First_GoalTest_Search_TREE(const enum METHODS method, Node *const root, St
         node = Pop(&frontier);
          
 		ht_insert(explorer_set, &(node->state));       
-		Show_Hash_Table(explorer_set);
+		//Show_Hash_Table(explorer_set);
                                         
         for(action=0; action<ACTIONS_NUMBER; action++)
 		{
@@ -169,7 +169,7 @@ Node* First_GoalTest_Search_TREE(const enum METHODS method, Node *const root, St
                         printf("ERROR: Unknown method in First_GoalTest_Search_TREE.\n");  
                         exit(-1);                  
                 }
-                Print_Frontier(frontier);			   
+                //Print_Frontier(frontier);
             }	            
 		}    
     } 
@@ -200,10 +200,10 @@ Node* DepthType_Search_TREE(const enum METHODS method, Node *const root, State *
     }
 	
 	frontier = Start_Frontier(root);
-	Print_Frontier(frontier);
+	//Print_Frontier(frontier);
 	
 	explorer_set =  New_Hash_Table(HASH_TABLE_BASED_SIZE);
-	Show_Hash_Table(explorer_set);
+	//Show_Hash_Table(explorer_set);
 	    
     while(Number_Searched_Nodes<MAX_SEARCHED_NODE) 
     {
@@ -213,7 +213,7 @@ Node* DepthType_Search_TREE(const enum METHODS method, Node *const root, State *
         node = Pop(&frontier);
         
         ht_insert(explorer_set, &(node->state));       
-		Show_Hash_Table(explorer_set);
+		//Show_Hash_Table(explorer_set);
 		
 		
 		if(method==DepthLimitedSearch || method==IterativeDeepeningSearch)
@@ -246,7 +246,7 @@ Node* DepthType_Search_TREE(const enum METHODS method, Node *const root, State *
 				    }
 
 				    Insert_LIFO(child, &frontier);	
-				    Print_Frontier(frontier);
+				    //Print_Frontier(frontier);
 				}										   
             }
 			
@@ -261,7 +261,85 @@ Node* DepthType_Search_TREE(const enum METHODS method, Node *const root, State *
     return FAILURE;
 }
 
+//______________________________________________________________________________
+Node* IDA_Star_Recursive_Search(Node* node, State* goal_state, float threshold, float* next_threshold, int* searched_nodes)
+{
+    (*searched_nodes)++;
 
+    float f_n = node->path_cost + node->h_n;
+
+    // Eğer maliyet sınırı aşıldıysa, bu yolu buda.
+    if (f_n > threshold) {
+        // Bir sonraki iterasyon için yeni sınırı güncelle.
+        if (f_n < *next_threshold) {
+            *next_threshold = f_n;
+        }
+        return FAILURE;
+    }
+
+    // Hedefe ulaştık mı?
+    if (Goal_Test(&node->state, goal_state)) {
+        return node;
+    }
+
+    // Çocukları gez
+    enum ACTIONS action;
+    for (action = 0; action < ACTIONS_NUMBER; action++) {
+        Node* child = Child_Node(node, action);
+        if (child != NULL) {
+            child->h_n = Compute_Heuristic_Function(&child->state, goal_state);
+
+            Node* result = IDA_Star_Recursive_Search(child, goal_state, threshold, next_threshold, searched_nodes);
+
+            if (result != FAILURE) {
+                return result; // Çözüm bulundu!
+            }
+        }
+    }
+    IDA_Clear_Branch(node);
+    return FAILURE;
+}
+
+
+// Bu, IDA*'ın ana döngüsünü yöneten fonksiyon.
+// Standart_Search.c içindeki IDA_Star_Search'ü bununla değiştir
+Node* IDA_Star_Search(Node* root, State* goal_state)
+{
+    if (Goal_Test(&root->state, goal_state)) {
+        printf("\nTotal nodes searched: 1\n");
+        return root;
+    }
+
+    root->h_n = Compute_Heuristic_Function(&root->state, goal_state);
+    float threshold = root->h_n;
+
+    int total_searched_nodes = 0;
+
+    while (1) {
+        printf("Searching with threshold: %.2f\n", threshold);
+
+        float next_threshold = 1e9;
+        int searched_in_iteration = 0;
+
+        Node* root_copy = (Node*)malloc(sizeof(Node));
+        memcpy(root_copy, root, sizeof(Node));
+
+        Node* result = IDA_Star_Recursive_Search(root_copy, goal_state, threshold, &next_threshold, &searched_in_iteration);
+
+        total_searched_nodes += searched_in_iteration;
+
+        if (result != FAILURE) {
+            printf("\nTotal nodes searched: %d\n", total_searched_nodes);
+            return result;
+        }
+
+        if (next_threshold == 1e9) {
+            return FAILURE;
+        }
+
+        threshold = next_threshold;
+    }
+}
 //______________________________________________________________________________
 Node* Child_Node(Node *const parent, const enum ACTIONS action)
 {
@@ -465,7 +543,7 @@ void Insert_Priority_Queue_GENERALIZED_A_Star(Node *const child, Queue **frontie
     return;
 }
 //______________________________________________________________________________
-void Print_Frontier(Queue *const frontier)
+/*  void Print_Frontier(Queue *const frontier)
 {
 	Queue *temp_queue; 
 	
@@ -476,7 +554,7 @@ void Print_Frontier(Queue *const frontier)
 		printf(" ,");
 	}
 	printf(" ]\n");   			
-}
+}*/
 
 //_______________ Remove the node old_child from the frontier__________
 void Remove_Node_From_Frontier(Node *const old_child, Queue **const frontier) 
@@ -596,6 +674,18 @@ void Clear_Single_Branch(Node *node, int *Number_Allocated_Nodes)
 	node->parent->Number_of_Child--;	  
     free(node);
     (*Number_Allocated_Nodes)--; 
+}
+
+//______________________________________________________________________________
+void IDA_Clear_Branch(Node *node) {
+    // Root düğümü silmeye çalışma
+    if (node->parent == NULL) {
+        free(node);
+        return;
+    }
+
+    // Düğümün kendisini sil
+    free(node);
 }
 
 //______________________________________________________________________________

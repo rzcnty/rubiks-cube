@@ -546,7 +546,7 @@ unsigned char temp_corner = s->stickers[36];
 //______________________________________________________________________________
 float Compute_Heuristic_Function(const State *const state, const State *const goal)
 {
-       int misplaced_count = 0;
+    int misplaced_count = 0;
     int i;
 
     for (i = 0; i < 54; i++) {
@@ -554,8 +554,10 @@ float Compute_Heuristic_Function(const State *const state, const State *const go
             misplaced_count++;
         }
     }
-    return (float)misplaced_count / 8.0f;}
 
+    float h = (float)misplaced_count / 8.0f;
+    return h * 2.0f;
+}
 //_______________ Update if your goal state is not determined initially ___________________________________
 int Goal_Test(const State *const state, const State *const goal_state)
 {

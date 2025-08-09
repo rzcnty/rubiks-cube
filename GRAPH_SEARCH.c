@@ -14,8 +14,8 @@ State* Create_Goal_State()
     for (i = 0; i < 9; i++)  goal->stickers[i] = 0; // Up: White
     for (i = 9; i < 18; i++) goal->stickers[i] = 1; // Left: Orange
     for (i = 18; i < 27; i++) goal->stickers[i] = 2; // Front: Green
-    for (i = 27; i < 35; i++) goal->stickers[i] = 3; // Right: Red
-    for (i = 35; i < 45; i++) goal->stickers[i] = 4; // Back: Blue
+    for (i = 27; i < 36; i++) goal->stickers[i] = 3; // Right: Red
+    for (i = 36; i < 45; i++) goal->stickers[i] = 4; // Back: Blue
     for (i = 45; i < 54; i++) goal->stickers[i] = 5; // Down: Yellow
 
     return goal;
@@ -93,12 +93,13 @@ int main()
             }
             break;
         }
+
         case IterativeDeepeningAStar: {
-            goal_node = First_InsertFrontier_Search_TREE(method, root_node, goal_state, 0.0);
-
-            break;
+printf("Running Iterative Deepening A*...\n");
+             goal_node = IDA_Star_Search(root_node, goal_state);
+             break;
         }
-
+        // ...
         default:
             printf("ERROR: Unknown or not-yet-implemented method.\n");
             goal_node = FAILURE;
