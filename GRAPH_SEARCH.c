@@ -99,7 +99,6 @@ printf("Running Iterative Deepening A*...\n");
              goal_node = IDA_Star_Search(root_node, goal_state);
              break;
         }
-        // ...
         default:
             printf("ERROR: Unknown or not-yet-implemented method.\n");
             goal_node = FAILURE;

@@ -268,21 +268,17 @@ Node* IDA_Star_Recursive_Search(Node* node, State* goal_state, float threshold, 
 
     float f_n = node->path_cost + node->h_n;
 
-    // Eğer maliyet sınırı aşıldıysa, bu yolu buda.
     if (f_n > threshold) {
-        // Bir sonraki iterasyon için yeni sınırı güncelle.
         if (f_n < *next_threshold) {
             *next_threshold = f_n;
         }
         return FAILURE;
     }
 
-    // Hedefe ulaştık mı?
     if (Goal_Test(&node->state, goal_state)) {
         return node;
     }
 
-    // Çocukları gez
     enum ACTIONS action;
     for (action = 0; action < ACTIONS_NUMBER; action++) {
         Node* child = Child_Node(node, action);
@@ -292,17 +288,16 @@ Node* IDA_Star_Recursive_Search(Node* node, State* goal_state, float threshold, 
             Node* result = IDA_Star_Recursive_Search(child, goal_state, threshold, next_threshold, searched_nodes);
 
             if (result != FAILURE) {
-                return result; // Çözüm bulundu!
+                return result;
             }
+            free(child);
         }
     }
-    IDA_Clear_Branch(node);
     return FAILURE;
 }
 
 
 // Bu, IDA*'ın ana döngüsünü yöneten fonksiyon.
-// Standart_Search.c içindeki IDA_Star_Search'ü bununla değiştir
 Node* IDA_Star_Search(Node* root, State* goal_state)
 {
     if (Goal_Test(&root->state, goal_state)) {

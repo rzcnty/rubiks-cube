@@ -14,7 +14,6 @@ CFLAGS = -g -Wall
 LIBS = -lm
 
 # Kaynak dosyalar (.c)
-# Standart_Search.c'yi BURAYA EKLE!
 SRCS = GRAPH_SEARCH.c SpecificToProblem.c HashTable.c Standart_Search.c
 
 # Kaynak dosyalardan türetilecek object dosyaları (.o)
@@ -26,7 +25,6 @@ TARGET = rubik_solver
 all: $(TARGET)
 
 # Programı oluşturma kuralı
-# LIBS değişkenini buraya ekle!
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LIBS)
 
