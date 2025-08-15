@@ -34,19 +34,6 @@ int main()
     Node *goal_node;
     State *initial_state;
     State *goal_state;
-    enum METHODS method;
-
-    printf("1 --> Breast-First Search\n");
-    printf("2 --> Uniform-Cost Search\n");
-    printf("3 --> Depth-First Search\n");
-    printf("4 --> Depth-Limited Search\n");
-    printf("5 --> Iterative Deepening Search\n");
-    printf("6 --> Greedy Search\n");
-    printf("7 --> A* Search\n");
-    printf("8 --> Generalized A* Search (Not Implemented)\n");
-    printf("9 --> Iterative Deepening A* (IDA*)\n");
-    printf("Select a method to solve the problem: ");
-    scanf("%d", (int*)&method);
 
     printf("\n======== ENTER INITIAL STATE =============== \n");
     initial_state = Create_State();
@@ -63,55 +50,14 @@ int main()
     root_node->parent = NULL;
     root_node->path_cost = 0;
     root_node->action = NO_ACTION;
-    root_node->Number_of_Child = 0;
     root_node->state = *initial_state;
 
     free(initial_state);
 
-    switch(method)
-    {
-        case BreastFirstSearch:
-        case UniformCostSearch:
-        case GreedySearch:
-            goal_node = First_GoalTest_Search_TREE(method, root_node, goal_state);
-                break;
-        case AStarSearch:
-        case DepthFirstSearch: {
-            goal_node = DepthType_Search_TREE(method, root_node, goal_state, -1); // -1 = limitsiz
-            break;
-        }
-        case DepthLimitedSearch: {
-            int max_level;
-            printf("Enter maximum level for depth-limited search: ");
-            scanf("%d", &max_level);
-            goal_node = DepthType_Search_TREE(method, root_node, goal_state, max_level);
-            break;
-        }
-        case IterativeDeepeningSearch: {
-            int level;
-            for(level = 0; ; level++){
-                printf("Trying with level limit: %d\n", level);
-                goal_node = DepthType_Search_TREE(IterativeDeepeningSearch, root_node, goal_state, level);
-                if(goal_node != FAILURE){
-                    printf("Goal found at level %d.\n", level);
-                    break;
-                }
-            }
-            break;
-        }
+    printf("Running Iterative Deepening A*...\n");
+    goal_node = IDA_Star_Search(root_node, goal_state);
 
-        case IterativeDeepeningAStar: {
-printf("Running Iterative Deepening A*...\n");
-             goal_node = IDA_Star_Search(root_node, goal_state);
-             break;
-        }
-        default:
-            printf("ERROR: Unknown or not-yet-implemented method.\n");
-            goal_node = FAILURE;
-            exit(-1);
-    }
     Show_Solution_Path(goal_node);
-
     free(goal_state);
 
     return 0;

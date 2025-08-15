@@ -15,8 +15,6 @@ struct Hash_Table {
     HashNode** buckets;
 };
 
-// Basit ama etkili bir hash fonksiyonu (djb2 algoritması)
-// String değil, byte dizisi üzerinde çalışır.
 static unsigned long hash_function(const State* state) {
     unsigned long hash = 5381;
     int c;
@@ -27,7 +25,6 @@ static unsigned long hash_function(const State* state) {
         c = str[i];
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
     }
-
     return hash;
 }
 
@@ -44,7 +41,6 @@ Hash_Table* New_Hash_Table(const int size) {
     return ht;
 }
 
-// Hash Tablosuna yeni bir durum ekler
 void ht_insert(Hash_Table* ht, const State* state) {
     unsigned long hash = hash_function(state);
     int index = hash % ht->size;
@@ -59,27 +55,30 @@ void ht_insert(Hash_Table* ht, const State* state) {
     ht->buckets[index] = new_node;
 }
 
-// Hash Tablosunda bir durumu arar
+static int Compare_States(const State *const state1, const State *const state2)
+{
+    if (memcmp(state1->stickers, state2->stickers, sizeof(State)) == 0) {
+        return TRUE;
+    }
+    return FALSE;
+}
+
 int ht_search(const Hash_Table* ht, const State* state) {
     unsigned long hash = hash_function(state);
     int index = hash % ht->size;
 
-    // O kovanın başındaki düğüme git
     HashNode* current = ht->buckets[index];
 
-    // Bağlı liste boyunca ilerle
     while (current != NULL) {
-        // State'leri byte-byte karşılaştır
         if (Compare_States(&current->state, state) == TRUE) {
-            return TRUE; // Bulundu!
+            return TRUE;
         }
         current = current->next;
     }
 
-    return FALSE; // Bulunamadı
+    return FALSE;
 }
 
-// Hash Tablosunu ve içindeki tüm düğümleri temizler
 void Delete_Hash_Table(Hash_Table* ht) {
     int i;
     for (i = 0; i < ht->size; i++) {

@@ -31,12 +31,6 @@ typedef struct State
 
 // ================== YOU DO NOT NEED TO CHANGE THIS PART ======================
 
-enum METHODS
-{
-	BreastFirstSearch = 1,   UniformCostSearch = 2,        DepthFirstSearch = 3,    
-	DepthLimitedSearch= 4,   IterativeDeepeningSearch = 5, GreedySearch = 6,
-    AStarSearch = 7, GeneralizedAStarSearch = 8, IterativeDeepeningAStar = 9
-};
 
 // This struct is used to determine a new state and action in transition model
 typedef struct Transition_Model
@@ -51,16 +45,7 @@ typedef struct Node
     float path_cost;
     enum ACTIONS action; //The action applied to the parent to generate this node
     struct Node *parent;
-    int Number_of_Child; // required for depth-first search algorithms
     float h_n;
 }Node;
-
-typedef struct Queue  // Used for frontier
-{
-    Node *node;
-    struct Queue *next;
-}Queue;
-
-
 
 #endif
