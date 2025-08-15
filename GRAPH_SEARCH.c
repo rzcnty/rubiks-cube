@@ -4,19 +4,25 @@
 #include "GRAPH_SEARCH.h"
 #include "data_types.h"
 
-State* Create_Goal_State()
+State* Create_Goal_State(const State* initial_state)
 {
     State *goal = (State*)malloc(sizeof(State));
     if(goal == NULL) {
         Warning_Memory_Allocation();
     }
-    int i;
-    for (i = 0; i < 9; i++)  goal->stickers[i] = 0; // Up: White
-    for (i = 9; i < 18; i++) goal->stickers[i] = 1; // Left: Orange
-    for (i = 18; i < 27; i++) goal->stickers[i] = 2; // Front: Green
-    for (i = 27; i < 36; i++) goal->stickers[i] = 3; // Right: Red
-    for (i = 36; i < 45; i++) goal->stickers[i] = 4; // Back: Blue
-    for (i = 45; i < 54; i++) goal->stickers[i] = 5; // Down: Yellow
+   unsigned char up_center    = initial_state->stickers[4];
+    unsigned char left_center  = initial_state->stickers[13];
+    unsigned char front_center = initial_state->stickers[22];
+    unsigned char right_center = initial_state->stickers[31];
+    unsigned char back_center  = initial_state->stickers[40];
+    unsigned char down_center  = initial_state->stickers[49];
+
+for (int i = 0;  i < 9;  i++) goal->stickers[i] = up_center;
+    for (int i = 9;  i < 18; i++) goal->stickers[i] = left_center;
+    for (int i = 18; i < 27; i++) goal->stickers[i] = front_center;
+    for (int i = 27; i < 36; i++) goal->stickers[i] = right_center;
+    for (int i = 36; i < 45; i++) goal->stickers[i] = back_center;
+    for (int i = 45; i < 54; i++) goal->stickers[i] = down_center;
 
     return goal;
 }
@@ -45,7 +51,7 @@ int main()
     printf("\n======== ENTER INITIAL STATE =============== \n");
     initial_state = Create_State();
 
-    goal_state = Create_Goal_State();
+    goal_state = Create_Goal_State(initial_state);
     printf("\nGoal state is the solved cube.\n");
     Print_State(goal_state);
     printf("============================================\n\n");
