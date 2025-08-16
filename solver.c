@@ -9,9 +9,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "GRAPH_SEARCH.h"
+#include "solver.h"
 #include "data_types.h"
-#include "HashTable.h"
+
+//______________________________________________________________________________
+static int is_state_in_path(Node* node, const State* state) {
+    Node* current = node;
+    while (current != NULL) {
+        if (memcmp(&current->state.stickers, &state->stickers, sizeof(State)) == 0) {
+            return TRUE;
+        }
+        current = current->parent;
+    }
+    return FALSE;
+}
 
 //______________________________________________________________________________
 Node* IDA_Star_Recursive_Search(Node* node, State* goal_state, float threshold, float* next_threshold)
@@ -34,36 +45,44 @@ Node* IDA_Star_Recursive_Search(Node* node, State* goal_state, float threshold, 
         Node* child = Child_Node(node, action);
 
         if (child != NULL) {
+            if (is_state_in_path(node, &child->state)) {
+                free(child);
+                continue;
+            }
+
             child->h_n = Compute_Heuristic_Function(&child->state, goal_state);
 
             Node* result = IDA_Star_Recursive_Search(child, goal_state, threshold, next_threshold);
+
             if (result != FAILURE) {
                 return result;
             }
+
             free(child);
         }
     }
+
     return FAILURE;
 }
 
+//______________________________________________________________________________
 Node* IDA_Star_Search(Node* root, State* goal_state)
 {
     if (Goal_Test(&root->state, goal_state)) {
-        printf("\nTotal nodes searched: 1\n");
+        printf("\nSolution found at the root node.\n");
         return root;
     }
 
     root->h_n = Compute_Heuristic_Function(&root->state, goal_state);
     float threshold = root->h_n;
 
-    int total_searched_nodes = 0;
-
     while (1) {
-        printf("Searching with threshold: %.2f\n", threshold);
+        printf("Searching with threshold (max f(n)): %.2f\n", threshold);
 
         float next_threshold = 1e9;
-
+        
         Node* root_copy = (Node*)malloc(sizeof(Node));
+        if (root_copy == NULL) Warning_Memory_Allocation();
         memcpy(root_copy, root, sizeof(Node));
 
         Node* result = IDA_Star_Recursive_Search(root_copy, goal_state, threshold, &next_threshold);
@@ -73,7 +92,6 @@ Node* IDA_Star_Search(Node* root, State* goal_state)
         }
 
         if (result != FAILURE) {
-            printf("\nTotal nodes searched: %d\n", total_searched_nodes);
             return result;
         }
 
@@ -84,6 +102,7 @@ Node* IDA_Star_Search(Node* root, State* goal_state)
         threshold = next_threshold;
     }
 }
+
 //______________________________________________________________________________
 Node* Child_Node(Node *const parent, const enum ACTIONS action)
 {
@@ -114,21 +133,21 @@ Node* Child_Node(Node *const parent, const enum ACTIONS action)
 void Show_Solution_Path(Node *const goal)
 {   
     Node *temp;
-	if(goal==FAILURE)
-		printf("THE SOLUTION CAN NOT BE FOUND.\n");
-	else{
-		printf("\nTHE COST PATH IS %.2f.\n", goal->path_cost);
-		printf("\nTHE SOLUTION PATH IS:\n");
-		for(temp = goal; temp!= NULL; temp = temp->parent)
-		{
-			Print_State(&(temp->state));
-			if(temp->parent!= NULL){
-				printf("\n\taction(");
-                Print_Action(temp->action);
-                printf(")\n");
-            }			
-		}
-	}		
+    if(goal==FAILURE)
+      printf("THE SOLUTION CAN NOT BE FOUND.\n");
+    else{
+      printf("\nTHE COST PATH IS %.2f.\n", goal->path_cost);
+      printf("\nTHE SOLUTION PATH IS:\n");
+      for(temp = goal; temp!= NULL; temp = temp->parent)
+        {
+          Print_State(&(temp->state));
+          if(temp->parent!= NULL){
+            printf("\n\taction(");
+            Print_Action(temp->action);
+            printf(")\n");
+          }
+        }
+    }
 }
 
 

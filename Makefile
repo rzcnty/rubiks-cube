@@ -10,7 +10,7 @@ CFLAGS = -g -Wall
 
 LIBS = -lm
 
-SRCS = GRAPH_SEARCH.c SpecificToProblem.c HashTable.c Standart_Search.c
+SRCS = main.c rubik_logic.c solver.c
 
 OBJS = $(SRCS:.c=.o)
 
