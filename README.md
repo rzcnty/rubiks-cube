@@ -15,7 +15,7 @@ A command-line application that solves a standard 3x3x3 Rubik's Cube using the *
 
 ## About The Project
 
-The main goal of this project is to solve a famous problem with a large state space: the Rubik's Cube, using IDA, a classic AI search algorithm.
+The main goal of this project is to solve a famous problem with a large state space: the Rubik's Cube, using IDA*, a classic AI search algorithm.
 
 ## Technical Details
 
@@ -34,14 +34,14 @@ Follow these steps to get a local copy up and running on your preferred operatin
 You will need a C compiler (like GCC) and the `make` build tool.
 
 - On Debian/Ubuntu:
-  ```bash
+```bash
   sudo apt-get install build-essential
-  ```
+```
 - On Fedora:
- ```bash
+```bash
   sudo dnf5 group install "development-tools"
   sudo dnf5 group install "c-development" 
-  ```
+```
 
 - On Windows:
 
@@ -119,4 +119,4 @@ Example (for a solved cube):
 
 ## Limitations
 
-The solver uses a "Misplaced Tiles" heuristic for now. While effective for simple cases, it is not strong enough to prune the search tree efficiently for scrambles beyond 7-8 moves. After all, solve times increase exponentially with complexity. This limitation is a direct trade-off for the simplicity of the heuristic function. Future development will focus on integrating a stronger heuristic to enable the solver to tackle more complex, deeply scrambled cubes.
+The solver uses a "Misplaced Tiles" heuristic for now. While effective for simple cases, it is not strong enough to prune the search tree efficiently for scrambles beyond 10 moves. After all, solve times increase exponentially with complexity. This limitation is a direct trade-off for the simplicity of the heuristic function. Future development will focus on integrating a stronger heuristic to enable the solver to tackle more complex, deeply scrambled cubes.
